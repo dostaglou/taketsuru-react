@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Dialog, Tag, MessageBox, Form, Input } from 'element-react'
+import { Button,Card, Dialog, Tag, Form, Input } from 'element-react'
 import 'element-theme-default'
 import { loader } from 'graphql.macro'
 import { withApollo } from 'react-apollo'
@@ -58,6 +58,8 @@ class ShipmentListItem extends Component {
                   <Form.Item label="create msg">
                     <Input type="textarea" value={this.state.form.desc} onChange={this._msgInput}/>
                   </Form.Item>
+                  <Button className="w-100" type="primary" nativeType="submit" onSubmit={this._handleSubmit}>Submit</Button>
+                  <Button className="w-100 ml-0 mt-2" type="warning" nativeType="submit" onClick={this._handleReset.bind(this)}>Clear & Cancel</Button>
                 </Form>
               </Dialog.Body>
           </Dialog>
@@ -66,6 +68,18 @@ class ShipmentListItem extends Component {
     )
   }
 
+  _handleSubmit = () => {
+
+  }
+
+  _handleReset = (e) => {
+    e.preventDefault()
+    this.setState(prevState => {
+      prevState.form.desc = ''
+      prevState.dialogVisible = false
+      return {prevState}
+    })
+  }
   _msgInput = (e) => {
     this.setState(prevState => {
       prevState.form.desc = e
