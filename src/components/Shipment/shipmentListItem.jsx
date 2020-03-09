@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Tag } from 'element-react'
+import { Card, Dialog, Tag, MessageBox, Form, Input } from 'element-react'
 import 'element-theme-default'
 import { loader } from 'graphql.macro'
 import { withApollo } from 'react-apollo'
@@ -8,10 +8,16 @@ import Milestones from './milestones'
 
 const mutationFollowShipment = loader('../../graphql/mutations/followShipment.gql')
 const mutationUnfollowShipment = loader('../../graphql/mutations/unfollowShipment.gql')
+const queryMessages = loader('../../graphql/queries/fetchChannelMessages.gql')
 
 class ShipmentListItem extends Component {
   state = {
-    shipment: this.props.shipment
+    shipment: {...this.props.shipment},
+    messages: [],
+    dialogVisible: false,
+    form: {
+      desc: ''
+    }
   }
 
   render() {
@@ -36,14 +42,66 @@ class ShipmentListItem extends Component {
         </div>
         <Milestones milestones={shipment.milestones} />
         <div className="pt-2 d-flex justify-content-around">
-          <AssignStaff shipment={shipment} shipmentId={shipment.id} assignedCustomer={shipment.assignedCustomer} />
+          <AssignStaff shipmentId={shipment.id} assignedCustomer={shipment.assignedCustomer} />
           <i onClick={this._mutateToggleFollowShipment} className="material-icons align-bottom">{this._followIcon(shipment.followed)}</i>
           <i className="material-icons align-bottom">view_list</i>
-          <i className="material-icons align-bottom">chat</i>
+          <i onClick={this._openChat} className="material-icons align-bottom">chat</i>
           <i className="material-icons align-bottom">content_copy</i>
+          <Dialog
+            title={`For ${shipment.reference} from ${shipment.departurePlace.name} to ${shipment.arrivalPlace.name}`}
+            className={'bg-light'}
+            size={'large'}
+            visible={ this.state.dialogVisible }
+            onCancel={ () => this.setState({dialogVisible: false})} >
+              <Dialog.Body>
+                <Form>
+                  <Form.Item label="create msg">
+                    <Input type="textarea" value={this.state.form.desc} onChange={this._msgInput}/>
+                  </Form.Item>
+                </Form>
+              </Dialog.Body>
+          </Dialog>
         </div>
       </Card>
     )
+  }
+
+  _msgInput = (e) => {
+    this.setState(prevState => {
+      prevState.form.desc = e
+      return {prevState}
+    })
+  }
+
+  _openChat = () => {
+    if (this.state.shipment.channelList){
+      const channelId = this.state.shipment.channelList[0].id
+      this._fetchMessages(channelId)
+    }
+  }
+
+  _fetchMessages = async (channelId) => {
+    const result = await this.props.client.query({
+      query: queryMessages,
+      variables: {
+        shipmentArgs: {
+          shipmentId: this.state.shipment.id
+        },
+        channelId: channelId,
+        pagination: {
+          page: 1,
+          per: 9999
+        }
+      }
+    })
+    if (result){
+      const messages = result.data.shipments[0].channelList[0].channelMessages
+      this.setState(prevState => {
+        prevState.messages = messages
+        prevState.dialogVisible = true
+        return (prevState)
+      })
+    }
   }
 
   _followIcon = (followed) => {
@@ -80,7 +138,7 @@ class ShipmentListItem extends Component {
     const result = await this.props.client.mutate({
       mutation: previousState ? mutationUnfollowShipment : mutationFollowShipment,
       variables: {
-        shipmentId: this.props.shipment.id
+        shipmentId: this.state.shipment.id
       }
     })
     if (result) {

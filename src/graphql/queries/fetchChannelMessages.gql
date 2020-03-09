@@ -1,0 +1,17 @@
+#import "../fragments/channelMessageFragment.gql"
+
+
+query fetchChannelMessages($shipmentArgs: ShipmentScopedInput!, $channelId: ID, $pagination: PaginationInput){
+  shipments(shipmentArgs: $shipmentArgs){
+    id
+    customerOrganization {
+      id
+      name
+    }
+    channelList(channelId: $channelId, pagination: $pagination){
+      id
+      channelType
+      channelMessages { ...channelMessageFragment}
+    }
+  }
+}
