@@ -1,0 +1,7 @@
+#import "../fragments/shipmentFragment.gql"
+
+mutation assignCustomer($shipmentId: ID!, $customerId: ID) {
+  assignCustomer(shipmentId: $shipmentId, customerId: $customerId) {
+    ...shipmentFragment
+  }
+}

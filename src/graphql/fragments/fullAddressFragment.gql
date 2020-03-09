@@ -1,0 +1,10 @@
+#import "./countryFragment.gql"
+
+fragment fullAddressFragment on FullAddress {
+  city
+  country { ...countryFragment }
+  line1
+  line2
+  postalCode
+  prefecture
+}

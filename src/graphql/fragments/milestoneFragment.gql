@@ -1,0 +1,35 @@
+fragment milestoneFragment on Milestone {
+  deliveryTime
+  details {
+    bookingNumber
+    eventInfo
+    eventLocation
+    flightNumber
+    vesselName
+    voyageNumber
+  }
+  devanningDate
+  devanningDetails {
+    container {
+      containerNumber
+      containerReference
+      deliveryPlaces {
+        deliveryDate
+        deliveryPlace
+        doneAt
+      }
+    }
+  }
+  doneDates {
+    doneAt
+    eventName
+    }
+  estimatedDateOfArrival
+  estimatedDateOfDeparture
+  eventDate
+  id
+  milestoneType
+  order
+  shipmentId
+  vesselId
+}

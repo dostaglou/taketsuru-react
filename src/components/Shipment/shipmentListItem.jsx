@@ -1,0 +1,95 @@
+import React, { Component } from 'react'
+import { Card, Tag } from 'element-react'
+import 'element-theme-default'
+import { loader } from 'graphql.macro'
+import { withApollo } from 'react-apollo'
+import AssignStaff from './assignStaff'
+import Milestones from './milestones'
+
+const mutationFollowShipment = loader('../../graphql/mutations/followShipment.gql')
+const mutationUnfollowShipment = loader('../../graphql/mutations/unfollowShipment.gql')
+
+class ShipmentListItem extends Component {
+  state = {
+    shipment: this.props.shipment
+  }
+
+  render() {
+    const { shipment } = this.state
+    return (
+      <Card className="px-2 my-2 bg-light">
+        <div className="w-100 border-bottom">
+          <div className="mb-2 d-flex justify-content-around">
+            <Tag className="w-25 m-1 text-center"  type="warning">{this._customerRole(shipment.customerRole)}</Tag>
+            <Tag className="w-25 m-1 align-center text-center" type="secondary">{this._incoterm(shipment.incoterm)}</Tag>
+            <Tag className="w-25 m-1 text-center" type="success">{this._cargoType(shipment.cargoType)}</Tag>
+          </div>
+          <h5 className="mx-auto py-2 text-center border-top border-bottom">{shipment.reference}</h5>
+          <div className="d-flex justify-content-between my-1">
+            <span className="mx-1 text-info">{shipment.departurePlace.name}</span>
+            <i className="material-icons align-bottom">chevron_right</i>
+            <span className="mx-1 text-success">{shipment.arrivalPlace.name}</span>
+          </div>
+          <p className="my-1 text-center">
+            {shipment.cargoDescription.description}
+          </p>
+        </div>
+        <Milestones milestones={shipment.milestones} />
+        <div className="pt-2 d-flex justify-content-around">
+          <AssignStaff shipment={shipment} shipmentId={shipment.id} assignedCustomer={shipment.assignedCustomer} />
+          <i onClick={this._mutateToggleFollowShipment} className="material-icons align-bottom">{this._followIcon(shipment.followed)}</i>
+          <i className="material-icons align-bottom">view_list</i>
+          <i className="material-icons align-bottom">chat</i>
+          <i className="material-icons align-bottom">content_copy</i>
+        </div>
+      </Card>
+    )
+  }
+
+  _followIcon = (followed) => {
+    if (followed === true) {
+      return "bookmark"
+    }
+    return "bookmark_border"
+  }
+
+  _customerRole = (role) => {
+    if (role === "seller"){
+      return "Export"
+    }
+    return "Import"
+  }
+
+  _incoterm = (term) => {
+    if (term === undefined) {
+      return "Any"
+    }
+    return term
+  }
+
+  _cargoType = (type) => {
+    if (type === "FCL") {
+      return type
+    }
+    return "LCL"
+  }
+
+  _mutateToggleFollowShipment = async () => {
+    const previousState = this.state.shipment.followed
+
+    const result = await this.props.client.mutate({
+      mutation: previousState ? mutationUnfollowShipment : mutationFollowShipment,
+      variables: {
+        shipmentId: this.props.shipment.id
+      }
+    })
+    if (result) {
+      this.setState( prevState => {
+        prevState.shipment.followed = !previousState
+        return({ shipment: prevState.shipment})
+      })
+    }
+  }
+}
+
+export default withApollo(ShipmentListItem)

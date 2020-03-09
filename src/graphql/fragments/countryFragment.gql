@@ -1,0 +1,9 @@
+fragment countryFragment on CountryType {
+  id
+  nameTranslations {
+    en
+    ja
+    zh
+  }
+  unLocode
+}

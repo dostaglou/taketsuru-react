@@ -1,0 +1,15 @@
+#import "./customerOrganizationFragment.gql"
+
+fragment shipperFragment on Shipper {
+  # avatar { ...AttachmentFields }
+  email
+  emailNotifications
+  hasUnreadNotifications
+  id
+  intercomToken
+  language
+  name
+  organization { ...customerOrganizationFragment }
+  phoneNumber
+  status
+}

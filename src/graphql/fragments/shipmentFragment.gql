@@ -1,0 +1,64 @@
+#import "./shipperFragment.gql"
+#import "./milestoneFragment.gql"
+#import "./channelFragment.gql"
+
+fragment shipmentFragment on Shipment {
+  assignedCustomer { ...shipperFragment }
+  id
+  incoterm
+  reference
+  status
+  transportationType
+  latestCommunicationDate
+  desiredDepartureDate
+  desiredArrivalDate
+  cargoType
+  customerReference
+  cargoDescription {
+    description
+    totalWeight
+    totalVolume
+    parcels {
+      netWeight
+      volume
+      packagingType
+      quantity
+    }
+    containers {
+      requestedContainerType
+      requestedContainerCount
+      contentNetWeight
+    }
+  }
+  departurePlace {
+    id
+    code
+    name
+  }
+  arrivalPlace {
+    id
+    code
+    name
+  }
+  departureCustomerLocation {
+    id
+    complete
+  }
+  arrivalCustomerLocation {
+    id
+    complete
+  }
+  arrivalAddress {
+    addressComponents
+  }
+  departureAddress {
+    addressComponents
+  }
+  milestones { ...milestoneFragment }
+  trackings {
+    id
+    message
+  }
+  followed
+  channelList { ...channelFragment }
+}

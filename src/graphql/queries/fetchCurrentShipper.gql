@@ -1,0 +1,5 @@
+#import "../fragments/shipperFragment.gql
+
+query shipper{
+    shipper{ ...shipperFragment}
+  }

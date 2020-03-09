@@ -1,0 +1,5 @@
+mutation authenticateUser($loginInformations: LoginInformationInput!){
+  authenticateUser(loginInformations: $loginInformations){
+    loginToken
+  }
+}

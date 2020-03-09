@@ -1,0 +1,3 @@
+mutation followShipment($shipmentId: ID!){
+  followShipment(shipmentId: $shipmentId)
+}

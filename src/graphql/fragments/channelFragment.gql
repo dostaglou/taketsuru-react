@@ -1,0 +1,10 @@
+#import "./channelMessageFragment.gql"
+
+fragment channelFragment on Channel {
+  channelMessages { ...channelMessageFragment }
+  channelType
+  createdAt
+  id
+  lastMessage { ...channelMessageFragment }
+  shipmentId
+}

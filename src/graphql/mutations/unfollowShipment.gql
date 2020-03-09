@@ -1,0 +1,3 @@
+mutation unfollowShipment($shipmentId: ID!){
+  unfollowShipment(shipmentId: $shipmentId)
+}

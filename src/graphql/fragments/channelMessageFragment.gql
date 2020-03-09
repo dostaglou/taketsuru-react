@@ -1,0 +1,26 @@
+fragment channelMessageFragment on ChannelMessage {
+  channel {
+    id
+  }
+  communicationType
+  content
+  createdAt
+  file {
+    id
+    url
+    name
+  }
+  id
+  sender {
+    avatar {
+      id
+      url
+      name
+    }
+    id
+    name
+    phoneNumber
+    senderType
+  }
+  shipmentId
+}

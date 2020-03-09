@@ -1,0 +1,32 @@
+#import "./fullAddressFragment.gql"
+
+fragment customerOrganizationFragment on CustomerOrganization {
+    address { ...fullAddressFragment }
+    country
+    countryCode
+    companyNumber
+    confirmBeforeCustomApplication
+    countryName {
+      en
+      ja
+      zh
+    }
+    depositPayment
+    depositPaymentNumber
+    dutyTaxPaymentTerms
+    exportPaymentTerms
+    faxNumber
+    hasInsuranceCoverage
+    hiddenAt
+    id
+    importPaymentTerms
+    insuranceExpiration
+    insuranceNumber
+    name
+    normalizedName
+    needsInsurance
+    phoneNumber
+    postalCode
+    shipperConsigneeStandardCode
+    url
+}
