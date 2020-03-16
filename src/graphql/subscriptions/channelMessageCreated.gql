@@ -1,0 +1,7 @@
+#import "../fragments/channelMessageFragment.gql"
+
+subscription channelMessageCreated($shipmentId: ID!) {
+  channelMessageCreated(shipmentId: $shipmentId) {
+    ... channelMessageFragment
+  }
+}

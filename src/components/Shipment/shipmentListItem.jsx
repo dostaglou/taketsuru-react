@@ -9,6 +9,8 @@ import Milestones from './milestones'
 const mutationFollowShipment = loader('../../graphql/mutations/followShipment.gql')
 const mutationUnfollowShipment = loader('../../graphql/mutations/unfollowShipment.gql')
 const queryMessages = loader('../../graphql/queries/fetchChannelMessages.gql')
+const mutationCreateChannelMessage = loader('../../graphql/mutations/createChannelMessage.gql')
+// const subscription = loader('../../graphql/subscriptions/channelMessageCreated.gql')
 
 class ShipmentListItem extends Component {
   state = {
@@ -18,6 +20,10 @@ class ShipmentListItem extends Component {
     form: {
       desc: ''
     }
+  }
+
+  componentDidMount(){
+    // this._handleSubscription()
   }
 
   render() {
@@ -49,16 +55,27 @@ class ShipmentListItem extends Component {
           <i className="material-icons align-bottom">content_copy</i>
           <Dialog
             title={`For ${shipment.reference} from ${shipment.departurePlace.name} to ${shipment.arrivalPlace.name}`}
-            className={'bg-light'}
+            className={'bg-light overflow-auto h-50'}
             size={'large'}
             visible={ this.state.dialogVisible }
             onCancel={ () => this.setState({dialogVisible: false})} >
               <Dialog.Body>
+                  {
+                    this.state.messages.map((message, index) => {
+                      return (
+                        <div className="d-flex w-100 " key={index}>
+                          <div style={{width: "15%", minWidth: "40px"}} className="bg-light">{message.sender.senderType === "shipper" ? message.sender.name : null}</div>
+                          <div className="bg-white py-2 flex-grow-1 border-bottom">{message.content}.</div>
+                          <div style={{width: "15%", minWidth: "40px"}} className="bg-light">{message.sender.senderType === "operator" ? message.sender.name : null}</div>
+                        </div>
+                      )
+                    })
+                  }
                 <Form>
                   <Form.Item label="create msg">
                     <Input type="textarea" value={this.state.form.desc} onChange={this._msgInput}/>
                   </Form.Item>
-                  <Button className="w-100" type="primary" nativeType="submit" onSubmit={this._handleSubmit}>Submit</Button>
+                  <Button className="w-100" type="primary" nativeType="submit" onClick={this._handleSubmit}>Submit</Button>
                   <Button className="w-100 ml-0 mt-2" type="warning" nativeType="submit" onClick={this._handleReset.bind(this)}>Clear & Cancel</Button>
                 </Form>
               </Dialog.Body>
@@ -68,8 +85,38 @@ class ShipmentListItem extends Component {
     )
   }
 
-  _handleSubmit = () => {
+  _handleSubscription = async () => {
+    // const result = await this.props.client.subscribe({
+    //   subscription: subscription,
+    //   variables: {
+    //     shipmentId: this.state.shipment.id
+    //   }
+    // })
+    // console.log(result)
+  }
 
+  _handleSubmit = async (e) => {
+    e.preventDefault()
+    const channelId = this.state.shipment.channelList[0].id
+    const msg = this.state.form.desc
+    const result = await this.props.client.mutate({
+      mutation: mutationCreateChannelMessage,
+      variables: {
+        message: {
+          content: msg,
+          communicationType: "text"
+        },
+        channelId: channelId,
+      }
+    })
+
+    if (result) {
+      this._fetchMessages(channelId)
+      this.setState(prevState => {
+        prevState.form.desc = ''
+        return {prevState}
+      })
+    }
   }
 
   _handleReset = (e) => {
@@ -97,6 +144,7 @@ class ShipmentListItem extends Component {
   _fetchMessages = async (channelId) => {
     const result = await this.props.client.query({
       query: queryMessages,
+      fetchPolicy: 'no-cache',
       variables: {
         shipmentArgs: {
           shipmentId: this.state.shipment.id
@@ -110,11 +158,13 @@ class ShipmentListItem extends Component {
     })
     if (result){
       const messages = result.data.shipments[0].channelList[0].channelMessages
+      console.log(messages)
       this.setState(prevState => {
-        prevState.messages = messages
+        prevState.messages = messages.reverse()
         prevState.dialogVisible = true
         return (prevState)
       })
+      console.log(this.state.messages)
     }
   }
 

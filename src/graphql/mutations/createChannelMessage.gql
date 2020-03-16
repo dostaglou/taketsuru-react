@@ -1,0 +1,7 @@
+#import "../fragments/channelMessageFragment.gql"
+
+mutation createChannelMessage($message: ChannelMessageInput!, $channelId: ID!) {
+  createChannelMessage(message: $message, channelId: $channelId){
+    ...channelMessageFragment
+  }
+}
